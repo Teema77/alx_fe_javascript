@@ -44,9 +44,9 @@ function filterQuotes() {
   }
 }
 
-// === Show a Random Quote ===
+// === Show Random Quote ===
 function showRandomQuote() {
-  filterQuotes(); // Now obeys filter
+  filterQuotes(); // Respects category
 }
 
 // === Display One Quote ===
@@ -67,7 +67,7 @@ function addQuote() {
     const newQuote = { text, category };
     quotes.push(newQuote);
     saveQuotes();
-    populateCategories(); // update dropdown
+    populateCategories(); // Update dropdown
 
     document.getElementById("newQuoteText").value = '';
     document.getElementById("newQuoteCategory").value = '';
@@ -77,7 +77,7 @@ function addQuote() {
   }
 }
 
-// === Create the Form Dynamically ===
+// === Create the Add Form ===
 function createAddQuoteForm() {
   const container = document.getElementById("formContainer");
 
@@ -137,7 +137,7 @@ function exportToJsonFile() {
   document.body.removeChild(a);
 }
 
-// === Load Last Viewed Quote on Page Load ===
+// === Load Last Viewed Quote ===
 function loadLastViewedQuote() {
   const stored = sessionStorage.getItem("lastQuote");
   if (stored) {
@@ -148,8 +148,67 @@ function loadLastViewedQuote() {
   }
 }
 
-// === Init ===
+// === Server Simulation ===
+const MOCK_SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
+let serverQuotes = [];
+
+async function fetchQuotesFromServer() {
+  try {
+    const res = await fetch(MOCK_SERVER_URL);
+    const data = await res.json();
+
+    const simulated = data.slice(0, 5).map(item => ({
+      text: item.title,
+      category: "Server"
+    }));
+
+    serverQuotes = simulated;
+    return simulated;
+  } catch (err) {
+    console.error("Server fetch failed:", err);
+    return [];
+  }
+}
+
+async function syncWithServer() {
+  const serverData = await fetchQuotesFromServer();
+  let updated = false;
+
+  serverData.forEach(serverQuote => {
+    const exists = quotes.some(
+      local => local.text === serverQuote.text && local.category === serverQuote.category
+    );
+    if (!exists) {
+      quotes.push(serverQuote);
+      updated = true;
+    }
+  });
+
+  if (updated) {
+    saveQuotes();
+    populateCategories();
+    showSyncNotification("Quotes synced from server. New quotes added.");
+  }
+}
+
+// === Sync Banner UI ===
+function showSyncNotification(message) {
+  const banner = document.createElement("div");
+  banner.textContent = message;
+  banner.style.backgroundColor = "#ffeb3b";
+  banner.style.padding = "10px";
+  banner.style.border = "1px solid #ccc";
+  banner.style.margin = "10px 0";
+  banner.style.fontWeight = "bold";
+
+  document.body.insertBefore(banner, document.body.firstChild);
+  setTimeout(() => banner.remove(), 5000);
+}
+
+// === Initialize ===
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 createAddQuoteForm();
 populateCategories();
 loadLastViewedQuote();
+syncWithServer();
+setInterval(syncWithServer, 30000); // every 30 seconds
