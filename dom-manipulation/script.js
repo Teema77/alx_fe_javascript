@@ -5,8 +5,8 @@ const quotes = [
   { text: "Do not take life too seriously. You will never get out of it alive.", category: "Humor" },
 ];
 
-// 2. Display a random quote
-function displayRandomQuote() {
+// 2. Function to display a random quote
+function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
   const display = document.getElementById("quoteDisplay");
@@ -17,7 +17,7 @@ function displayRandomQuote() {
   `;
 }
 
-// 3. Add a new quote
+// 3. Function to add a new quote
 function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value.trim();
   const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
@@ -37,5 +37,5 @@ function addQuote() {
   }
 }
 
-// 4. Event listener
-document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+// 4. Event listener for "Show New Quote"
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);
