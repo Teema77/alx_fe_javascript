@@ -4,7 +4,7 @@ let quotes = loadQuotes() || [
   { text: "Life is what happens when you're busy making other plans.", category: "Life" }
 ];
 
-// === Local Storage ===
+// === Storage ===
 function loadQuotes() {
   const data = localStorage.getItem("quotes");
   return data ? JSON.parse(data) : null;
@@ -32,7 +32,7 @@ function showRandomQuote() {
   }
 }
 
-// === Form ===
+// === Add Quote ===
 function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
@@ -57,7 +57,7 @@ function createAddQuoteForm() {
   `;
 }
 
-// === Category Filter ===
+// === Filter ===
 function populateCategories() {
   const dropdown = document.getElementById("categoryFilter");
   const selected = localStorage.getItem("selectedCategory") || "all";
@@ -77,7 +77,7 @@ function filterQuotes() {
   showRandomQuote();
 }
 
-// === Import / Export JSON ===
+// === Import / Export ===
 function importFromJsonFile(event) {
   const reader = new FileReader();
   reader.onload = function (e) {
@@ -103,46 +103,52 @@ function exportToJsonFile() {
   link.click();
 }
 
-// === ✅ POST Quote to Mock Server ===
-function postQuoteToServer(quote) {
-  fetch("https://jsonplaceholder.typicode.com/posts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(quote)
-  }).catch(err => console.error("POST failed:", err));
+// ✅ === POST Quote to Server ===
+async function postQuoteToServer(quote) {
+  try {
+    await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(quote)
+    });
+  } catch (err) {
+    console.error("POST error:", err);
+  }
 }
 
-// === ✅ FETCH Quotes from Mock Server ===
-function fetchQuotesFromServer() {
-  return fetch("https://jsonplaceholder.typicode.com/posts")
-    .then(res => res.json())
-    .then(data => {
-      return data.slice(0, 5).map(post => ({
-        text: post.title,
-        category: "Server"
-      }));
-    });
+// ✅ === FETCH Quotes from Server ===
+async function fetchQuotesFromServer() {
+  try {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await res.json();
+    return data.slice(0, 5).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+  } catch (err) {
+    console.error("Fetch error:", err);
+    return [];
+  }
 }
 
-// === ✅ SYNC Quotes from Server ===
-function syncQuotes() {
-  fetchQuotesFromServer().then(serverQuotes => {
-    let newCount = 0;
-    serverQuotes.forEach(sq => {
-      if (!quotes.find(q => q.text === sq.text)) {
-        quotes.push(sq);
-        newCount++;
-      }
-    });
-    if (newCount > 0) {
-      saveQuotes();
-      populateCategories();
-      showSyncNotification(`${newCount} new quotes synced from server.`);
+// ✅ === SYNC Quotes from Server ===
+async function syncQuotes() {
+  const serverQuotes = await fetchQuotesFromServer();
+  let newCount = 0;
+  serverQuotes.forEach(sq => {
+    if (!quotes.find(q => q.text === sq.text)) {
+      quotes.push(sq);
+      newCount++;
     }
-  }).catch(err => console.error("Sync error:", err));
+  });
+  if (newCount > 0) {
+    saveQuotes();
+    populateCategories();
+    showSyncNotification(`${newCount} new quotes synced from server.`);
+  }
 }
 
-// === ✅ Notification ===
+// ✅ === Notification Banner ===
 function showSyncNotification(message) {
   const banner = document.createElement("div");
   banner.textContent = message;
