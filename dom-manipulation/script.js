@@ -5,7 +5,7 @@ const quotes = [
   { text: "Do not take life too seriously. You will never get out of it alive.", category: "Humor" },
 ];
 
-// 2. Function to display a random quote
+// 2. Function to show a random quote
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
@@ -37,5 +37,35 @@ function addQuote() {
   }
 }
 
-// 4. Event listener for "Show New Quote"
+// 4. Function to create the add-quote form dynamically
+function createAddQuoteForm() {
+  const formContainer = document.getElementById("formContainer");
+
+  const heading = document.createElement("h3");
+  heading.textContent = "Add a New Quote";
+
+  const inputText = document.createElement("input");
+  inputText.id = "newQuoteText";
+  inputText.type = "text";
+  inputText.placeholder = "Enter a new quote";
+
+  const inputCategory = document.createElement("input");
+  inputCategory.id = "newQuoteCategory";
+  inputCategory.type = "text";
+  inputCategory.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.addEventListener("click", addQuote);
+
+  formContainer.appendChild(heading);
+  formContainer.appendChild(inputText);
+  formContainer.appendChild(inputCategory);
+  formContainer.appendChild(addButton);
+}
+
+// 5. Attach event listener to "Show New Quote" button
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+
+// 6. Create the form when the page loads
+createAddQuoteForm();
