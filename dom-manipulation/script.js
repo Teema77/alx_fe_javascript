@@ -144,9 +144,10 @@ async function syncQuotes() {
   if (newCount > 0) {
     saveQuotes();
     populateCategories();
-    showSyncNotification(`${newCount} new quotes synced from server.`);
+    showSyncNotification("Quotes synced with server!"); // <- Required string
   }
 }
+
 
 // ✅ === Notification Banner ===
 function showSyncNotification(message) {
